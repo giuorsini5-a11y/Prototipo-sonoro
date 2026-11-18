@@ -1,0 +1,1109 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Anzoategui Matilde - Orsini Giuliana - Grupo 20</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400&family=JetBrains+Mono:wght@400;500&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            paper: '#F6F3EC',
+            ivory: '#FFFDF9',
+            sand: '#EDE8DD',
+            borderSubtle: '#DFD9CE',
+            ink: '#1E1D1B',
+            inkMuted: '#635E56',
+            terracotta: '#B85D3B',
+            terracottaSoft: '#F3E5DF',
+            sage: '#4D6A58',
+            sageSoft: '#E5EDE8'
+          },
+          fontFamily: {
+            serif: ['Fraunces', 'Georgia', 'serif'],
+            sans: ['Plus Jakarta Sans', 'system-ui', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace']
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      background-color: #F6F3EC;
+      color: #1E1D1B;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .custom-scroll::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .custom-scroll::-webkit-scrollbar-track {
+      background: #EDE8DD;
+      border-radius: 9999px;
+    }
+    .custom-scroll::-webkit-scrollbar-thumb {
+      background: #C9C1B3;
+      border-radius: 9999px;
+    }
+    .custom-scroll::-webkit-scrollbar-thumb:hover {
+      background: #A99F8E;
+    }
+    .rotor-wheel {
+      touch-action: none;
+      user-select: none;
+      transition: transform 0.08s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .rotor-wheel.dragging {
+      transition: none;
+    }
+    @keyframes pulseRing {
+      0% { transform: scale(0.95); opacity: 0.75; }
+      100% { transform: scale(1.22); opacity: 0; }
+    }
+    .animate-ring {
+      animation: pulseRing 0.75s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+  </style>
+</head>
+<body class="font-sans antialiased min-h-screen flex flex-col selection:bg-terracottaSoft selection:text-terracotta">
+
+  <!-- ENCABEZADO EDITORIAL -->
+  <header class="border-b border-borderSubtle bg-paper/90 backdrop-blur-sm sticky top-0 z-30">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+      <div>
+        <h1 class="font-serif text-xl sm:text-2xl font-medium tracking-tight text-ink">
+          Anzoategui Matilde - Orsini Giuliana - Grupo 20
+        </h1>
+      </div>
+
+      <!-- Indicador de estado de audio y escala -->
+      <div class="flex flex-wrap items-center gap-2 sm:gap-3">
+        <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-mono bg-sand border border-borderSubtle text-inkMuted">
+          <span class="w-2 h-2 rounded-full bg-sage"></span>
+          Fa Pentatónico Mayor (F·G·A·C·D)
+        </span>
+        <button id="btnAudioInit" onclick="initAudioContext(true)" class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-medium bg-ivory border border-borderSubtle hover:border-terracotta text-ink transition-colors shadow-sm">
+          <span id="audioDot" class="w-2 h-2 rounded-full bg-terracotta"></span>
+          <span id="audioStatusText">Tocar para activar audio</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- CONTENIDO PRINCIPAL -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-8">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
+
+      <!-- COLUMNA IZQUIERDA: SELECTOR DE LOS 19 DISPOSITIVOS -->
+      <aside class="lg:col-span-4 bg-ivory border border-borderSubtle rounded-2xl p-4 sm:p-5 shadow-sm flex flex-col gap-4">
+        <div class="flex items-center justify-between border-b border-borderSubtle pb-3">
+          <div>
+            <h2 class="font-serif text-lg font-medium text-ink">Sistema de 19 Dispositivos</h2>
+            <p class="text-xs text-inkMuted mt-0.5">76 gestos sonoros · Seleccioná un punto</p>
+          </div>
+          <span id="counterBadge" class="font-mono text-xs px-2.5 py-1 rounded-full bg-sand text-inkMuted border border-borderSubtle">
+            19 / 19
+          </span>
+        </div>
+
+        <!-- Filtros por categoría física -->
+        <div class="flex flex-wrap gap-1.5" id="filterBar">
+          <button data-filter="all" class="filter-btn active px-3 py-1.5 rounded-full text-xs font-medium transition-all bg-ink text-ivory">
+            Todos (19)
+          </button>
+          <button data-filter="maqueta" class="filter-btn px-3 py-1.5 rounded-full text-xs font-medium transition-all bg-terracottaSoft text-terracotta border border-terracotta/30 hover:bg-terracotta hover:text-ivory">
+            ● Maqueta Física (Disco 01)
+          </button>
+          <button data-filter="30" class="filter-btn px-3 py-1.5 rounded-full text-xs font-medium transition-all bg-sand text-inkMuted hover:text-ink border border-borderSubtle">
+            Discos Ø 30 cm (7)
+          </button>
+          <button data-filter="50" class="filter-btn px-3 py-1.5 rounded-full text-xs font-medium transition-all bg-sand text-inkMuted hover:text-ink border border-borderSubtle">
+            Discos Ø 50 cm (7)
+          </button>
+          <button data-filter="80" class="filter-btn px-3 py-1.5 rounded-full text-xs font-medium transition-all bg-sand text-inkMuted hover:text-ink border border-borderSubtle">
+            Discos Ø 80 cm (2)
+          </button>
+          <button data-filter="silla" class="filter-btn px-3 py-1.5 rounded-full text-xs font-medium transition-all bg-sand text-inkMuted hover:text-ink border border-borderSubtle">
+            Sillas Giratorias (3)
+          </button>
+        </div>
+
+        <!-- Lista scrolleable de dispositivos -->
+        <div id="deviceList" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-2 max-h-[340px] lg:max-h-[540px] overflow-y-auto pr-1 custom-scroll">
+          <!-- Renderizado dinámico por JS -->
+        </div>
+      </aside>
+
+      <!-- COLUMNA DERECHA: SIMULADOR TÁCTIL Y 4 SONIDOS DEL PUNTO -->
+      <section class="lg:col-span-8 flex flex-col gap-6">
+
+        <!-- Tarjeta Principal del Simulador -->
+        <div class="bg-ivory border border-borderSubtle rounded-2xl p-5 sm:p-7 shadow-sm">
+          <!-- Cabecera del dispositivo activo -->
+          <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-4 border-b border-borderSubtle pb-5">
+            <div>
+              <div class="flex flex-wrap items-center gap-2 mb-1.5">
+                <span id="activeCodeBadge" class="font-mono text-xs font-medium px-2.5 py-0.5 rounded-md bg-sand text-ink border border-borderSubtle">
+                  PT-01
+                </span>
+                <span id="activeCategoryBadge" class="text-xs font-medium px-2.5 py-0.5 rounded-full bg-terracottaSoft text-terracotta border border-terracotta/25">
+                  Disco Ø 30 cm · Maqueta Física
+                </span>
+                <span id="activeRegisterBadge" class="font-mono text-xs text-inkMuted">
+                  Registro grave-medio calibrado
+                </span>
+              </div>
+              <h2 id="activeDeviceTitle" class="font-serif text-2xl sm:text-3xl font-medium text-ink tracking-tight">
+                Disco 01 (Maqueta Física)
+              </h2>
+              <p id="activeDeviceDesc" class="text-xs sm:text-sm text-inkMuted mt-1">
+                Prototipo físico con 4 disparadores por rotación. Tocá cada cuadrante o arrastrá el rotor para disparar los sonidos.
+              </p>
+            </div>
+
+            <!-- Controles de secuencia automática -->
+            <div class="flex flex-wrap sm:flex-nowrap items-center gap-2 shrink-0">
+              <button id="btnSeqCW" onclick="playSequence('cw')" class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-medium bg-ink text-ivory hover:bg-ink/90 transition-all shadow-sm">
+                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8" />
+                  <path d="M21 3v5h-5" />
+                </svg>
+                Horario (1→4)
+              </button>
+              <button id="btnSeqCCW" onclick="playSequence('ccw')" class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-medium bg-sand text-ink border border-borderSubtle hover:border-ink/40 transition-all">
+                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+                  <path d="M3 3v5h5" />
+                </svg>
+                Antihorario (4→1)
+              </button>
+              <button id="btnStopSeq" onclick="stopSequence()" class="hidden inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-medium bg-terracotta text-ivory hover:bg-terracotta/90 transition-all shadow-sm">
+                Detener
+              </button>
+            </div>
+          </div>
+
+          <!-- Área Central Interactiva del Rotor -->
+          <div class="py-7 sm:py-9 flex flex-col items-center justify-center relative">
+            <!-- Sensor superior fijo -->
+            <div class="flex flex-col items-center mb-3 z-10">
+              <span class="font-mono text-[10px] uppercase tracking-widest text-inkMuted mb-1">Sensor Óptico / Leva</span>
+              <div id="sensorIndicator" class="w-3.5 h-3.5 rounded-full bg-sand border-2 border-ink/40 transition-all duration-150"></div>
+            </div>
+
+            <!-- Contenedor escalable según diámetro físico / silla -->
+            <div id="rotorStage" class="relative flex items-center justify-center transition-all duration-300 w-[260px] h-[260px] sm:w-[300px] sm:h-[300px]">
+              <!-- Anillo de onda al disparar -->
+              <div id="pulseWave" class="pointer-events-none absolute inset-0 rounded-full border-2 border-terracotta opacity-0"></div>
+
+              <!-- Contorno arquitectónico para Sillas Giratorias (solo visible en Silla 01-03) -->
+              <svg id="chairOutline" class="hidden pointer-events-none absolute -inset-5 w-[calc(100%+2.5rem)] h-[calc(100%+2.5rem)] text-ink/25" viewBox="0 0 340 340" fill="none">
+                <!-- Respaldo curvo envolvente -->
+                <path d="M 68 235 A 128 128 0 0 0 272 235" stroke="currentColor" stroke-width="10" stroke-linecap="round" />
+                <path d="M 68 235 A 128 128 0 0 0 272 235" stroke="#DFD9CE" stroke-width="4" stroke-linecap="round" />
+                <!-- Apoyabrazos izquierdo y derecho -->
+                <path d="M 52 145 L 52 205" stroke="currentColor" stroke-width="8" stroke-linecap="round" />
+                <path d="M 288 145 L 288 205" stroke="currentColor" stroke-width="8" stroke-linecap="round" />
+              </svg>
+
+              <!-- Disco Giratorio Interactivo SVG -->
+              <div id="rotorWheel" class="rotor-wheel w-full h-full rounded-full shadow-md border border-borderSubtle bg-paper relative cursor-grab active:cursor-grabbing">
+                <svg viewBox="0 0 300 300" class="w-full h-full rounded-full overflow-visible">
+                  <!-- Cuadrante 1 (Superior Izquierdo -> Sonido 01) -->
+                  <path id="quad-0" d="M 150 150 L 150 10 A 140 140 0 0 0 10 150 Z"
+                        fill="#FFFDF9" stroke="#DFD9CE" stroke-width="1.5"
+                        class="cursor-pointer transition-colors duration-150 hover:fill-[#F3E5DF]/60"
+                        onclick="handleQuadrantClick(0, event)" />
+                  <!-- Cuadrante 2 (Superior Derecho -> Sonido 02) -->
+                  <path id="quad-1" d="M 150 150 L 290 150 A 140 140 0 0 0 150 10 Z"
+                        fill="#FAF7F0" stroke="#DFD9CE" stroke-width="1.5"
+                        class="cursor-pointer transition-colors duration-150 hover:fill-[#F3E5DF]/60"
+                        onclick="handleQuadrantClick(1, event)" />
+                  <!-- Cuadrante 3 (Inferior Derecho -> Sonido 03) -->
+                  <path id="quad-2" d="M 150 150 L 150 290 A 140 140 0 0 0 290 150 Z"
+                        fill="#FFFDF9" stroke="#DFD9CE" stroke-width="1.5"
+                        class="cursor-pointer transition-colors duration-150 hover:fill-[#F3E5DF]/60"
+                        onclick="handleQuadrantClick(2, event)" />
+                  <!-- Cuadrante 4 (Inferior Izquierdo -> Sonido 04) -->
+                  <path id="quad-3" d="M 150 150 L 10 150 A 140 140 0 0 0 150 290 Z"
+                        fill="#FAF7F0" stroke="#DFD9CE" stroke-width="1.5"
+                        class="cursor-pointer transition-colors duration-150 hover:fill-[#F3E5DF]/60"
+                        onclick="handleQuadrantClick(3, event)" />
+
+                  <!-- Marcas de leva periféricas -->
+                  <circle cx="85" cy="85" r="4" fill="#B85D3B" opacity="0.65" pointer-events="none" />
+                  <circle cx="215" cy="85" r="4" fill="#B85D3B" opacity="0.65" pointer-events="none" />
+                  <circle cx="215" cy="215" r="4" fill="#B85D3B" opacity="0.65" pointer-events="none" />
+                  <circle cx="85" cy="215" r="4" fill="#B85D3B" opacity="0.65" pointer-events="none" />
+
+                  <!-- Etiquetas de los 4 sonidos sobre el disco -->
+                  <text x="86" y="106" text-anchor="middle" class="font-mono text-[11px] fill-[#1E1D1B] font-medium pointer-events="none">Sonido 01</text>
+                  <text x="214" y="106" text-anchor="middle" class="font-mono text-[11px] fill-[#1E1D1B] font-medium pointer-events="none">Sonido 02</text>
+                  <text x="214" y="202" text-anchor="middle" class="font-mono text-[11px] fill-[#1E1D1B] font-medium pointer-events="none">Sonido 03</text>
+                  <text x="86" y="202" text-anchor="middle" class="font-mono text-[11px] fill-[#1E1D1B] font-medium pointer-events="none">Sonido 04</text>
+
+                  <!-- Eje central -->
+                  <circle cx="150" cy="150" r="34" fill="#F6F3EC" stroke="#DFD9CE" stroke-width="1.5" pointer-events="none" />
+                  <circle cx="150" cy="150" r="6" fill="#1E1D1B" pointer-events="none" />
+                  <text id="rotorCenterLabel" x="150" y="172" text-anchor="middle" class="font-mono text-[9px] fill-[#635E56] pointer-events="none">Ø 30 cm</text>
+                </svg>
+              </div>
+            </div>
+
+            <p class="text-xs text-inkMuted mt-4 text-center max-w-md">
+              Tocá directamente sobre <strong class="font-medium text-ink">Sonido 01–04</strong> o arrastrá el borde del rotor en círculo para simular el giro manual.
+            </p>
+          </div>
+
+          <!-- Tarjetas de los 4 Sonidos del Dispositivo Seleccionado -->
+          <div class="border-t border-borderSubtle pt-5">
+            <div class="flex items-center justify-between mb-3">
+              <h3 class="font-serif text-base font-medium text-ink">Gestos sonoros del dispositivo</h3>
+              <span class="font-mono text-[11px] text-inkMuted">4 disparadores · 192 kbps / WebAudio</span>
+            </div>
+            <div id="soundCardsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+              <!-- Renderizado dinámico por JS -->
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <script>
+    // =========================================================================
+    // 1. MOTOR DE SÍNTESIS ACÚSTICA (WEB AUDIO API) — FA PENTATÓNICO MAYOR
+    // =========================================================================
+    let audioCtx = null;
+    let masterGain = null;
+    let compressor = null;
+    let reverbNode = null;
+    let reverbGain = null;
+
+    function initAudioContext(showFeedback = false) {
+      if (!audioCtx) {
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        audioCtx = new AudioContextClass();
+
+        // Limitador / compresor suave para cero distorsión en parlantes móviles
+        compressor = audioCtx.createDynamicsCompressor();
+        compressor.threshold.setValueAtTime(-14, audioCtx.currentTime);
+        compressor.knee.setValueAtTime(18, audioCtx.currentTime);
+        compressor.ratio.setValueAtTime(6, audioCtx.currentTime);
+        compressor.attack.setValueAtTime(0.004, audioCtx.currentTime);
+        compressor.release.setValueAtTime(0.18, audioCtx.currentTime);
+
+        masterGain = audioCtx.createGain();
+        masterGain.gain.setValueAtTime(0.88, audioCtx.currentTime);
+
+        // Reverb algorítmica espacial de plaza abierta
+        reverbNode = createImpulseReverb(audioCtx, 1.55, 2.8);
+        reverbGain = audioCtx.createGain();
+        reverbGain.gain.setValueAtTime(0.32, audioCtx.currentTime);
+
+        compressor.connect(masterGain);
+        compressor.connect(reverbNode);
+        reverbNode.connect(reverbGain);
+        reverbGain.connect(masterGain);
+        masterGain.connect(audioCtx.destination);
+      }
+
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+
+      const dot = document.getElementById('audioDot');
+      const txt = document.getElementById('audioStatusText');
+      if (dot && txt) {
+        dot.classList.remove('bg-terracotta');
+        dot.classList.add('bg-sage');
+        txt.textContent = 'Audio activo';
+      }
+
+      if (showFeedback) {
+        triggerGesture(currentDeviceIndex, 0);
+      }
+    }
+
+    function createImpulseReverb(ctx, duration, decay) {
+      const rate = ctx.sampleRate;
+      const length = Math.floor(rate * duration);
+      const impulse = ctx.createBuffer(2, length, rate);
+      for (let ch = 0; ch < 2; ch++) {
+        const data = impulse.getChannelData(ch);
+        for (let i = 0; i < length; i++) {
+          const t = i / rate;
+          data[i] = (Math.random() * 2 - 1) * Math.pow(1 - t / duration, decay) * 0.65;
+        }
+      }
+      const convolver = ctx.createConvolver();
+      convolver.buffer = impulse;
+      return convolver;
+    }
+
+    // Sintetiza una nota orgánica estilo marimba/resonador cálido
+    function scheduleOrganicNote(startTime, freq, vel, brightness, decaySec) {
+      if (!audioCtx) return;
+
+      const osc1 = audioCtx.createOscillator(); // Fundamental
+      const osc2 = audioCtx.createOscillator(); // Octava / cuerpo
+      const osc3 = audioCtx.createOscillator(); // Transitorio madera
+
+      osc1.type = 'sine';
+      osc2.type = 'sine';
+      osc3.type = 'triangle';
+
+      osc1.frequency.setValueAtTime(freq, startTime);
+      osc2.frequency.setValueAtTime(freq * 2.0, startTime);
+      osc3.frequency.setValueAtTime(freq * 3.98, startTime);
+
+      const g1 = audioCtx.createGain();
+      const g2 = audioCtx.createGain();
+      const g3 = audioCtx.createGain();
+      const noteMix = audioCtx.createGain();
+
+      // Refuerzo de armónico en graves para inteligibilidad en altavoces chicos
+      const octaveWeight = freq < 250 ? 0.34 : (0.14 + 0.14 * brightness);
+      const woodWeight = 0.08 + 0.16 * brightness;
+
+      // Envolvente fundamental
+      g1.gain.setValueAtTime(0.0001, startTime);
+      g1.gain.linearRampToValueAtTime(0.76 * vel, startTime + 0.008);
+      g1.gain.exponentialRampToValueAtTime(0.0001, startTime + decaySec * 1.45);
+
+      // Envolvente 2do parcial
+      g2.gain.setValueAtTime(0.0001, startTime);
+      g2.gain.linearRampToValueAtTime(octaveWeight * vel, startTime + 0.006);
+      g2.gain.exponentialRampToValueAtTime(0.0001, startTime + decaySec * 0.68);
+
+      // Envolvente madera corta
+      g3.gain.setValueAtTime(0.0001, startTime);
+      g3.gain.linearRampToValueAtTime(woodWeight * vel, startTime + 0.003);
+      g3.gain.exponentialRampToValueAtTime(0.0001, startTime + 0.065);
+
+      // Filtro pasa-bajos dinámico según velocidad y brillo
+      const filter = audioCtx.createBiquadFilter();
+      filter.type = 'lowpass';
+      const cutoff = Math.min(4600, 880 + 2100 * vel * (0.35 + 0.65 * brightness));
+      filter.frequency.setValueAtTime(cutoff, startTime);
+      filter.Q.setValueAtTime(0.85, startTime);
+
+      osc1.connect(g1);
+      osc2.connect(g2);
+      osc3.connect(g3);
+
+      g1.connect(filter);
+      g2.connect(filter);
+      g3.connect(filter);
+
+      filter.connect(noteMix);
+      noteMix.gain.setValueAtTime(0.55, startTime);
+      noteMix.connect(compressor);
+
+      const stopTime = startTime + decaySec * 1.55 + 0.05;
+      osc1.start(startTime);
+      osc2.start(startTime);
+      osc3.start(startTime);
+
+      osc1.stop(stopTime);
+      osc2.stop(stopTime);
+      osc3.stop(stopTime);
+    }
+
+    // =========================================================================
+    // 2. CATÁLOGO COMPLETO DE LOS 19 DISPOSITIVOS (76 SONIDOS)
+    // =========================================================================
+    // Escala Fa Pentatónico Mayor:
+    // F2=87.31, G2=98.00, A2=110.00, C3=130.81, D3=146.83
+    // F3=174.61, G3=196.00, A3=220.00, C4=261.63, D4=293.66
+    // F4=349.23, G4=392.00, A4=440.00, C5=523.25, D5=587.33
+    // F5=698.46, G5=783.99, A5=880.00
+
+    const DEVICES = [
+      // --- 7 DISCOS Ø 30 cm (PT-01 a PT-07) ---
+      {
+        id: 'PT-01',
+        name: 'Disco 01 (Maqueta Física)',
+        type: 'disco',
+        diameter: '30',
+        isMaqueta: true,
+        badge: 'Disco Ø 30 cm · Maqueta Física',
+        register: 'Calibrado microSD (0001–0004)',
+        desc: 'Secuencia exacta de los 4 archivos cargados en la maqueta física.',
+        sounds: [
+          {
+            label: 'Sonido 01',
+            notes: 'C3 · F3 · C4 · A4',
+            duration: '1.6 s',
+            events: [
+              [0.00, 130.81, 0.98, 0.30, 1.05],
+              [0.16, 174.61, 0.88, 0.35, 0.95],
+              [0.34, 261.63, 0.62, 0.42, 0.85],
+              [0.52, 440.00, 0.38, 0.48, 0.75]
+            ]
+          },
+          {
+            label: 'Sonido 02',
+            notes: 'C5 → A4 → G4 → F4 → D4 → C4',
+            duration: '1.3 s',
+            events: [
+              [0.00, 523.25, 0.78, 0.56, 0.52],
+              [0.09, 440.00, 0.66, 0.48, 0.52],
+              [0.18, 392.00, 0.54, 0.42, 0.55],
+              [0.28, 349.23, 0.42, 0.36, 0.58],
+              [0.39, 293.66, 0.30, 0.30, 0.62],
+              [0.51, 261.63, 0.20, 0.25, 0.75]
+            ]
+          },
+          {
+            label: 'Sonido 03',
+            notes: 'D3 · A3 · F4 · C4',
+            duration: '1.4 s',
+            events: [
+              [0.00, 146.83, 0.94, 0.32, 0.85],
+              [0.24, 220.00, 0.78, 0.38, 0.75],
+              [0.42, 349.23, 0.65, 0.46, 0.80],
+              [0.56, 261.63, 0.40, 0.34, 0.85]
+            ]
+          },
+          {
+            label: 'Sonido 04',
+            notes: 'F3 + C4 + G4 + A4',
+            duration: '1.5 s',
+            events: [
+              [0.00, 174.61, 0.86, 0.32, 1.00],
+              [0.055, 261.63, 0.76, 0.40, 0.95],
+              [0.11, 392.00, 0.82, 0.48, 0.90],
+              [0.17, 440.00, 0.70, 0.52, 0.95]
+            ]
+          }
+        ]
+      },
+      {
+        id: 'PT-02',
+        name: 'Disco 02',
+        type: 'disco',
+        diameter: '30',
+        isMaqueta: false,
+        badge: 'Disco Ø 30 cm',
+        register: 'Registro agudo cristalino',
+        desc: 'Dispositivo compacto de Ø 30 cm con respuesta ágil en registro agudo dulce.',
+        sounds: [
+          { label: 'Sonido 01', notes: 'C5 · G5 · A5', duration: '1.1 s', events: [[0.00, 523.25, 0.75, 0.58, 0.65], [0.10, 783.99, 0.62, 0.66, 0.65], [0.20, 880.00, 0.50, 0.72, 0.75]] },
+          { label: 'Sonido 02', notes: 'A5 → G5 → F5', duration: '1.0 s', events: [[0.00, 880.00, 0.70, 0.68, 0.52], [0.11, 783.99, 0.56, 0.60, 0.55], [0.22, 698.46, 0.44, 0.52, 0.65]] },
+          { label: 'Sonido 03', notes: 'F5 · D5 · G5', duration: '1.1 s', events: [[0.00, 698.46, 0.74, 0.62, 0.55], [0.14, 587.33, 0.58, 0.54, 0.55], [0.28, 783.99, 0.66, 0.68, 0.70]] },
+          { label: 'Sonido 04', notes: 'C5 + F5 + A5', duration: '1.3 s', events: [[0.00, 523.25, 0.68, 0.55, 0.80], [0.06, 698.46, 0.64, 0.62, 0.82], [0.12, 880.00, 0.58, 0.70, 0.90]] }
+        ]
+      },
+      {
+        id: 'PT-03',
+        name: 'Disco 03',
+        type: 'disco',
+        diameter: '30',
+        isMaqueta: false,
+        badge: 'Disco Ø 30 cm',
+        register: 'Registro agudo cristalino',
+        desc: 'Dispositivo compacto de Ø 30 cm con contraste entre notas aisladas y tríadas.',
+        sounds: [
+          { label: 'Sonido 01', notes: 'F5', duration: '1.2 s', events: [[0.00, 698.46, 0.76, 0.58, 0.85]] },
+          { label: 'Sonido 02', notes: 'A5 → G5 → F5', duration: '1.1 s', events: [[0.00, 880.00, 0.72, 0.64, 0.55], [0.11, 783.99, 0.58, 0.56, 0.58], [0.22, 698.46, 0.46, 0.48, 0.68]] },
+          { label: 'Sonido 03', notes: 'C5', duration: '1.2 s', events: [[0.00, 523.25, 0.78, 0.50, 0.90]] },
+          { label: 'Sonido 04', notes: 'C5 + F5 + A5', duration: '1.4 s', events: [[0.00, 523.25, 0.66, 0.52, 0.85], [0.08, 698.46, 0.62, 0.58, 0.85], [0.16, 880.00, 0.55, 0.65, 0.95]] }
+        ]
+      },
+      {
+        id: 'PT-04',
+        name: 'Disco 04',
+        type: 'disco',
+        diameter: '30',
+        isMaqueta: false,
+        badge: 'Disco Ø 30 cm',
+        register: 'Registro agudo cristalino',
+        desc: 'Dispositivo compacto de Ø 30 cm con intervalos ascendentes luminosos.',
+        sounds: [
+          { label: 'Sonido 01', notes: 'D5 · F5 · A5', duration: '1.1 s', events: [[0.00, 587.33, 0.74, 0.58, 0.60], [0.09, 698.46, 0.68, 0.64, 0.62], [0.18, 880.00, 0.56, 0.70, 0.72]] },
+          { label: 'Sonido 02', notes: 'G5 → D5 → C5', duration: '1.1 s', events: [[0.00, 783.99, 0.72, 0.64, 0.55], [0.12, 587.33, 0.58, 0.54, 0.58], [0.24, 523.25, 0.45, 0.48, 0.68]] },
+          { label: 'Sonido 03', notes: 'A4 · F5', duration: '1.2 s', events: [[0.00, 440.00, 0.76, 0.52, 0.70], [0.16, 698.46, 0.66, 0.64, 0.80]] },
+          { label: 'Sonido 04', notes: 'D5 + G5 + A5', duration: '1.3 s', events: [[0.00, 587.33, 0.65, 0.56, 0.82], [0.07, 783.99, 0.60, 0.64, 0.85], [0.14, 880.00, 0.54, 0.70, 0.92]] }
+        ]
+      },
+      {
+        id: 'PT-05',
+        name: 'Disco 05',
+        type: 'disco',
+        diameter: '30',
+        isMaqueta: false,
+        badge: 'Disco Ø 30 cm',
+        register: 'Registro agudo cristalino',
+        desc: 'Dispositivo compacto de Ø 30 cm con rebotes rítmicos ligeros.',
+        sounds: [
+          { label: 'Sonido 01', notes: 'G5 · D5 · G5', duration: '1.1 s', events: [[0.00, 783.99, 0.72, 0.62, 0.52], [0.11, 587.33, 0.54, 0.52, 0.52], [0.23, 783.99, 0.64, 0.65, 0.68]] },
+          { label: 'Sonido 02', notes: 'F5 → D5 → C5 → A4', duration: '1.2 s', events: [[0.00, 698.46, 0.74, 0.60, 0.50], [0.09, 587.33, 0.62, 0.54, 0.52], [0.18, 523.25, 0.50, 0.48, 0.55], [0.27, 440.00, 0.38, 0.42, 0.68]] },
+          { label: 'Sonido 03', notes: 'C5 · A5', duration: '1.2 s', events: [[0.00, 523.25, 0.76, 0.52, 0.72], [0.18, 880.00, 0.58, 0.70, 0.82]] },
+          { label: 'Sonido 04', notes: 'F4 + C5 + G5', duration: '1.4 s', events: [[0.00, 349.23, 0.70, 0.46, 0.88], [0.07, 523.25, 0.64, 0.56, 0.88], [0.14, 783.99, 0.56, 0.65, 0.95]] }
+        ]
+      },
+      {
+        id: 'PT-06',
+        name: 'Disco 06',
+        type: 'disco',
+        diameter: '30',
+        isMaqueta: false,
+        badge: 'Disco Ø 30 cm',
+        register: 'Registro agudo cristalino',
+        desc: 'Dispositivo compacto de Ø 30 cm con arpegios cortos de alta claridad.',
+        sounds: [
+          { label: 'Sonido 01', notes: 'A4 · C5 · F5 · A5', duration: '1.2 s', events: [[0.00, 440.00, 0.68, 0.50, 0.55], [0.07, 523.25, 0.70, 0.56, 0.58], [0.14, 698.46, 0.66, 0.62, 0.62], [0.21, 880.00, 0.56, 0.68, 0.75]] },
+          { label: 'Sonido 02', notes: 'D5 · G5', duration: '1.1 s', events: [[0.00, 587.33, 0.75, 0.58, 0.68], [0.15, 783.99, 0.64, 0.66, 0.76]] },
+          { label: 'Sonido 03', notes: 'G5 → F5 → D5', duration: '1.1 s', events: [[0.00, 783.99, 0.72, 0.64, 0.54], [0.10, 698.46, 0.60, 0.58, 0.56], [0.20, 587.33, 0.48, 0.50, 0.68]] },
+          { label: 'Sonido 04', notes: 'C5 + D5 + G5', duration: '1.3 s', events: [[0.00, 523.25, 0.66, 0.52, 0.84], [0.06, 587.33, 0.62, 0.56, 0.84], [0.12, 783.99, 0.58, 0.64, 0.92]] }
+        ]
+      },
+      {
+        id: 'PT-07',
+        name: 'Disco 07',
+        type: 'disco',
+        diameter: '30',
+        isMaqueta: false,
+        badge: 'Disco Ø 30 cm',
+        register: 'Registro agudo cristalino',
+        desc: 'Dispositivo compacto de Ø 30 cm con cierre melódico suspendido.',
+        sounds: [
+          { label: 'Sonido 01', notes: 'F5 · C5 · F5', duration: '1.1 s', events: [[0.00, 698.46, 0.74, 0.60, 0.55], [0.12, 523.25, 0.58, 0.50, 0.55], [0.24, 698.46, 0.68, 0.62, 0.72]] },
+          { label: 'Sonido 02', notes: 'A5 → F5 → D5 → C5', duration: '1.2 s', events: [[0.00, 880.00, 0.70, 0.66, 0.50], [0.09, 698.46, 0.58, 0.58, 0.52], [0.18, 587.33, 0.46, 0.50, 0.55], [0.27, 523.25, 0.36, 0.44, 0.68]] },
+          { label: 'Sonido 03', notes: 'G4 · D5 · A5', duration: '1.2 s', events: [[0.00, 392.00, 0.76, 0.48, 0.72], [0.11, 587.33, 0.66, 0.58, 0.72], [0.22, 880.00, 0.54, 0.68, 0.82]] },
+          { label: 'Sonido 04', notes: 'F4 + A4 + D5 + G5', duration: '1.4 s', events: [[0.00, 349.23, 0.68, 0.44, 0.88], [0.06, 440.00, 0.64, 0.50, 0.88], [0.12, 587.33, 0.60, 0.58, 0.90], [0.18, 783.99, 0.54, 0.66, 0.96]] }
+        ]
+      },
+
+      // --- 7 DISCOS Ø 50 cm (PT-08 a PT-14) ---
+      {
+        id: 'PT-08',
+        name: 'Disco 08',
+        type: 'disco',
+        diameter: '50',
+        isMaqueta: false,
+        badge: 'Disco Ø 50 cm',
+        register: 'Registro medio orgánico',
+        desc: 'Disco intermedio de Ø 50 cm con timbre de marimba cálida en octava central.',
+        sounds: [
+          { label: 'Sonido 01', notes: 'F3 · C4 · F4', duration: '1.4 s', events: [[0.00, 174.61, 0.90, 0.36, 0.90], [0.13, 261.63, 0.76, 0.44, 0.82], [0.26, 349.23, 0.64, 0.50, 0.85]] },
+          { label: 'Sonido 02', notes: 'D5 → C5 → A4 → G4 → F4', duration: '1.3 s', events: [[0.00, 587.33, 0.80, 0.56, 0.52], [0.09, 523.25, 0.68, 0.50, 0.52], [0.18, 440.00, 0.56, 0.44, 0.55], [0.27, 392.00, 0.44, 0.38, 0.58], [0.36, 349.23, 0.32, 0.32, 0.70]] },
+          { label: 'Sonido 03', notes: 'G3 · D4 · A4', duration: '1.3 s', events: [[0.00, 196.00, 0.88, 0.38, 0.80], [0.18, 293.66, 0.74, 0.46, 0.78], [0.34, 440.00, 0.60, 0.52, 0.85]] },
+          { label: 'Sonido 04', notes: 'F3 + A3 + C4 + G4', duration: '1.5 s', events: [[0.00, 174.61, 0.84, 0.35, 0.95], [0.06, 220.00, 0.76, 0.40, 0.92], [0.12, 261.63, 0.72, 0.45, 0.92], [0.18, 392.00, 0.64, 0.52, 0.98]] }
+        ]
+      },
+      {
+        id: 'PT-09',
+        name: 'Disco 09',
+        type: 'disco',
+        diameter: '50',
+        isMaqueta: false,
+        badge: 'Disco Ø 50 cm',
+        register: 'Registro medio orgánico',
+        desc: 'Disco intermedio de Ø 50 cm con pulsos sincopados de madera templada.',
+        sounds: [
+          { label: 'Sonido 01', notes: 'A3 · E/F4 · C5', duration: '1.3 s', events: [[0.00, 220.00, 0.88, 0.40, 0.82], [0.14, 349.23, 0.76, 0.48, 0.78], [0.28, 523.25, 0.62, 0.54, 0.84]] },
+          { label: 'Sonido 02', notes: 'C5 → A4 → F4 → D4', duration: '1.3 s', events: [[0.00, 523.25, 0.78, 0.54, 0.54], [0.10, 440.00, 0.64, 0.46, 0.56], [0.20, 349.23, 0.50, 0.40, 0.60], [0.30, 293.66, 0.36, 0.34, 0.72]] },
+          { label: 'Sonido 03', notes: 'C4 · G4 · D4', duration: '1.3 s', events: [[0.00, 261.63, 0.86, 0.44, 0.76], [0.20, 392.00, 0.72, 0.50, 0.76], [0.36, 293.66, 0.58, 0.40, 0.84]] },
+          { label: 'Sonido 04', notes: 'G3 + D4 + A4 + C5', duration: '1.5 s', events: [[0.00, 196.00, 0.82, 0.38, 0.94], [0.06, 293.66, 0.74, 0.44, 0.92], [0.12, 440.00, 0.68, 0.50, 0.94], [0.18, 523.25, 0.60, 0.56, 0.98]] }
+        ]
+      },
+      {
+        id: 'PT-10',
+        name: 'Disco 10',
+        type: 'disco',
+        diameter: '50',
+        isMaqueta: false,
+        badge: 'Disco Ø 50 cm',
+        register: 'Registro medio orgánico',
+        desc: 'Disco intermedio de Ø 50 cm con motivos en espejo de cuatro notas.',
+        sounds: [
+          { label: 'Sonido 01', notes: 'D3 · A3 · D4 · F4', duration: '1.4 s', events: [[0.00, 146.83, 0.92, 0.34, 0.92], [0.12, 220.00, 0.78, 0.40, 0.84], [0.24, 293.66, 0.68, 0.46, 0.82], [0.36, 349.23, 0.56, 0.50, 0.88]] },
+          { label: 'Sonido 02', notes: 'A4 → G4 → D4 → C4', duration: '1.3 s', events: [[0.00, 440.00, 0.80, 0.50, 0.55], [0.10, 392.00, 0.66, 0.44, 0.58], [0.20, 293.66, 0.52, 0.38, 0.62], [0.30, 261.63, 0.38, 0.32, 0.75]] },
+          { label: 'Sonido 03', notes: 'F4 · C4 · G4', duration: '1.3 s', events: [[0.00, 349.23, 0.84, 0.48, 0.75], [0.16, 261.63, 0.68, 0.40, 0.75], [0.32, 392.00, 0.74, 0.50, 0.84]] },
+          { label: 'Sonido 04', notes: 'D3 + A3 + F4 + A4', duration: '1.5 s', events: [[0.00, 146.83, 0.86, 0.34, 0.96], [0.06, 220.00, 0.76, 0.40, 0.94], [0.12, 349.23, 0.70, 0.48, 0.94], [0.18, 440.00, 0.62, 0.52, 1.00]] }
+        ]
+      },
+      {
+        id: 'PT-11',
+        name: 'Disco 11',
+        type: 'disco',
+        diameter: '50',
+        isMaqueta: false,
+        badge: 'Disco Ø 50 cm',
+        register: 'Registro medio orgánico',
+        desc: 'Disco intermedio de Ø 50 cm con balance equilibrado entre cuerpo y ataque.',
+        sounds: [
+          { label: 'Sonido 01', notes: 'C3 · G3 · D4', duration: '1.4 s', events: [[0.00, 130.81, 0.94, 0.32, 0.95], [0.15, 196.00, 0.78, 0.38, 0.85], [0.30, 293.66, 0.64, 0.46, 0.85]] },
+          { label: 'Sonido 02', notes: 'D5 → A4 → G4 → D4', duration: '1.3 s', events: [[0.00, 587.33, 0.78, 0.54, 0.52], [0.10, 440.00, 0.64, 0.46, 0.55], [0.20, 392.00, 0.52, 0.40, 0.58], [0.30, 293.66, 0.38, 0.34, 0.72]] },
+          { label: 'Sonido 03', notes: 'A3 · F4 · C4', duration: '1.3 s', events: [[0.00, 220.00, 0.88, 0.40, 0.80], [0.20, 349.23, 0.74, 0.48, 0.78], [0.38, 261.63, 0.56, 0.38, 0.84]] },
+          { label: 'Sonido 04', notes: 'C3 + G3 + D4 + A4', duration: '1.5 s', events: [[0.00, 130.81, 0.88, 0.32, 0.98], [0.06, 196.00, 0.76, 0.38, 0.94], [0.12, 293.66, 0.70, 0.46, 0.94], [0.18, 440.00, 0.62, 0.52, 1.00]] }
+        ]
+      },
+      {
+        id: 'PT-12',
+        name: 'Disco 12',
+        type: 'disco',
+        diameter: '50',
+        isMaqueta: false,
+        badge: 'Disco Ø 50 cm',
+        register: 'Registro medio orgánico',
+        desc: 'Disco intermedio de Ø 50 cm con cadencia progresiva de cinco pasos.',
+        sounds: [
+          { label: 'Sonido 01', notes: 'F3 · A3 · C4 · F4', duration: '1.4 s', events: [[0.00, 174.61, 0.90, 0.35, 0.90], [0.11, 220.00, 0.78, 0.40, 0.84], [0.22, 261.63, 0.68, 0.44, 0.82], [0.33, 349.23, 0.58, 0.50, 0.88]] },
+          { label: 'Sonido 02', notes: 'C5 → G4 → F4 → C4 → A3', duration: '1.4 s', events: [[0.00, 523.25, 0.78, 0.52, 0.50], [0.09, 392.00, 0.66, 0.44, 0.52], [0.18, 349.23, 0.54, 0.38, 0.56], [0.28, 261.63, 0.42, 0.34, 0.62], [0.38, 220.00, 0.30, 0.28, 0.74]] },
+          { label: 'Sonido 03', notes: 'D4 · A3 · G4', duration: '1.3 s', events: [[0.00, 293.66, 0.84, 0.46, 0.76], [0.18, 220.00, 0.68, 0.38, 0.76], [0.34, 392.00, 0.72, 0.50, 0.84]] },
+          { label: 'Sonido 04', notes: 'F3 + C4 + D4 + A4', duration: '1.5 s', events: [[0.00, 174.61, 0.86, 0.35, 0.95], [0.06, 261.63, 0.76, 0.42, 0.92], [0.12, 293.66, 0.70, 0.46, 0.92], [0.18, 440.00, 0.62, 0.52, 0.98]] }
+        ]
+      },
+      {
+        id: 'PT-13',
+        name: 'Disco 13',
+        type: 'disco',
+        diameter: '50',
+        isMaqueta: false,
+        badge: 'Disco Ø 50 cm',
+        register: 'Registro medio orgánico',
+        desc: 'Disco intermedio de Ø 50 cm con intervalos abiertos de quinta y novena.',
+        sounds: [
+          { label: 'Sonido 01', notes: 'G3 · D4 · G4', duration: '1.4 s', events: [[0.00, 196.00, 0.90, 0.36, 0.90], [0.14, 293.66, 0.76, 0.44, 0.82], [0.28, 392.00, 0.64, 0.50, 0.86]] },
+          { label: 'Sonido 02', notes: 'A4 → F4 → D4 → C4', duration: '1.3 s', events: [[0.00, 440.00, 0.80, 0.50, 0.54], [0.10, 349.23, 0.66, 0.42, 0.58], [0.20, 293.66, 0.52, 0.36, 0.62], [0.30, 261.63, 0.38, 0.30, 0.74]] },
+          { label: 'Sonido 03', notes: 'C4 · A4 · F4', duration: '1.3 s', events: [[0.00, 261.63, 0.86, 0.44, 0.78], [0.18, 440.00, 0.72, 0.52, 0.78], [0.36, 349.23, 0.58, 0.44, 0.85]] },
+          { label: 'Sonido 04', notes: 'G3 + D4 + G4 + C5', duration: '1.5 s', events: [[0.00, 196.00, 0.84, 0.36, 0.94], [0.06, 293.66, 0.76, 0.44, 0.92], [0.12, 392.00, 0.70, 0.50, 0.92], [0.18, 523.25, 0.60, 0.56, 0.98]] }
+        ]
+      },
+      {
+        id: 'PT-14',
+        name: 'Disco 14',
+        type: 'disco',
+        diameter: '50',
+        isMaqueta: false,
+        badge: 'Disco Ø 50 cm',
+        register: 'Registro medio orgánico',
+        desc: 'Disco intermedio de Ø 50 cm con articulación suave entre registro medio y grave.',
+        sounds: [
+          { label: 'Sonido 01', notes: 'A3 · C4 · G4', duration: '1.4 s', events: [[0.00, 220.00, 0.90, 0.38, 0.88], [0.14, 261.63, 0.76, 0.44, 0.82], [0.28, 392.00, 0.64, 0.50, 0.86]] },
+          { label: 'Sonido 02', notes: 'G4 → F4 → D4 → A3', duration: '1.3 s', events: [[0.00, 392.00, 0.80, 0.48, 0.56], [0.10, 349.23, 0.66, 0.42, 0.58], [0.20, 293.66, 0.52, 0.36, 0.64], [0.30, 220.00, 0.38, 0.30, 0.76]] },
+          { label: 'Sonido 03', notes: 'F3 · D4 · A3', duration: '1.3 s', events: [[0.00, 174.61, 0.90, 0.34, 0.84], [0.20, 293.66, 0.72, 0.46, 0.78], [0.38, 220.00, 0.56, 0.38, 0.86]] },
+          { label: 'Sonido 04', notes: 'A3 + C4 + F4 + G4', duration: '1.5 s', events: [[0.00, 220.00, 0.84, 0.38, 0.94], [0.06, 261.63, 0.76, 0.44, 0.92], [0.12, 349.23, 0.70, 0.48, 0.92], [0.18, 392.00, 0.62, 0.52, 0.98]] }
+        ]
+      },
+
+      // --- 2 DISCOS Ø 80 cm (PT-15 y PT-16) ---
+      {
+        id: 'PT-15',
+        name: 'Disco 15',
+        type: 'disco',
+        diameter: '80',
+        isMaqueta: false,
+        badge: 'Disco Ø 80 cm',
+        register: 'Registro grave profundo',
+        desc: 'Rotor de gran escala (Ø 80 cm) con resonancia grave profunda y caída prolongada.',
+        sounds: [
+          { label: 'Sonido 01', notes: 'F2 · C3 · F3 · C4', duration: '1.9 s', events: [[0.00, 87.31, 1.00, 0.24, 1.35], [0.18, 130.81, 0.88, 0.30, 1.25], [0.36, 174.61, 0.74, 0.35, 1.15], [0.54, 261.63, 0.50, 0.42, 1.05]] },
+          { label: 'Sonido 02', notes: 'C4 → A3 → G3 → F3 → C3', duration: '1.7 s', events: [[0.00, 261.63, 0.82, 0.40, 0.75], [0.12, 220.00, 0.70, 0.35, 0.78], [0.24, 196.00, 0.58, 0.30, 0.82], [0.36, 174.61, 0.46, 0.26, 0.90], [0.48, 130.81, 0.36, 0.22, 1.10]] },
+          { label: 'Sonido 03', notes: 'G2 · D3 · A3', duration: '1.8 s', events: [[0.00, 98.00, 0.98, 0.25, 1.25], [0.28, 146.83, 0.84, 0.32, 1.15], [0.52, 220.00, 0.62, 0.38, 1.05]] },
+          { label: 'Sonido 04', notes: 'F2 + C3 + G3 + A3', duration: '2.0 s', events: [[0.00, 87.31, 0.96, 0.24, 1.40], [0.08, 130.81, 0.86, 0.30, 1.35], [0.16, 196.00, 0.78, 0.36, 1.30], [0.24, 220.00, 0.68, 0.40, 1.35]] }
+        ]
+      },
+      {
+        id: 'PT-16',
+        name: 'Disco 16',
+        type: 'disco',
+        diameter: '80',
+        isMaqueta: false,
+        badge: 'Disco Ø 80 cm',
+        register: 'Registro grave profundo',
+        desc: 'Rotor de gran escala (Ø 80 cm) con sub-armónicos graves y pulsos pausados.',
+        sounds: [
+          { label: 'Sonido 01', notes: 'A2 · D3 · A3 · D4', duration: '1.9 s', events: [[0.00, 110.00, 1.00, 0.26, 1.32], [0.18, 146.83, 0.86, 0.32, 1.22], [0.36, 220.00, 0.72, 0.38, 1.12], [0.54, 293.66, 0.50, 0.44, 1.02]] },
+          { label: 'Sonido 02', notes: 'D4 → C4 → G3 → D3 → A2', duration: '1.7 s', events: [[0.00, 293.66, 0.80, 0.42, 0.72], [0.12, 261.63, 0.68, 0.36, 0.76], [0.24, 196.00, 0.56, 0.30, 0.82], [0.36, 146.83, 0.44, 0.26, 0.92], [0.48, 110.00, 0.34, 0.22, 1.12]] },
+          { label: 'Sonido 03', notes: 'F2 · A2 · F3', duration: '1.8 s', events: [[0.00, 87.31, 0.98, 0.24, 1.28], [0.30, 110.00, 0.84, 0.28, 1.18], [0.56, 174.61, 0.66, 0.36, 1.08]] },
+          { label: 'Sonido 04', notes: 'A2 + D3 + G3 + C4', duration: '2.0 s', events: [[0.00, 110.00, 0.96, 0.26, 1.38], [0.08, 146.83, 0.86, 0.32, 1.32], [0.16, 196.00, 0.78, 0.36, 1.28], [0.24, 261.63, 0.68, 0.42, 1.34]] }
+        ]
+      },
+
+      // --- 3 SILLAS GIRATORIAS (PT-17 a PT-19) ---
+      {
+        id: 'PT-17',
+        name: 'Silla 01',
+        type: 'silla',
+        diameter: 'Silla',
+        isMaqueta: false,
+        badge: 'Silla Giratoria',
+        register: 'Registro medio-grave corporal',
+        desc: 'Asiento giratorio interactivo que responde al giro corporal con acordes envolventes.',
+        sounds: [
+          { label: 'Sonido 01', notes: 'C3 · G3 · C4 · F4', duration: '1.6 s', events: [[0.00, 130.81, 0.94, 0.32, 1.10], [0.15, 196.00, 0.82, 0.38, 1.00], [0.30, 261.63, 0.68, 0.44, 0.92], [0.45, 349.23, 0.50, 0.48, 0.88]] },
+          { label: 'Sonido 02', notes: 'F4 → D4 → C4 → A3 → F3', duration: '1.5 s', events: [[0.00, 349.23, 0.80, 0.46, 0.64], [0.11, 293.66, 0.68, 0.40, 0.66], [0.22, 261.63, 0.56, 0.36, 0.70], [0.33, 220.00, 0.44, 0.30, 0.76], [0.44, 174.61, 0.34, 0.26, 0.88]] },
+          { label: 'Sonido 03', notes: 'D3 · A3 · C4', duration: '1.5 s', events: [[0.00, 146.83, 0.92, 0.32, 0.98], [0.24, 220.00, 0.78, 0.38, 0.90], [0.46, 261.63, 0.60, 0.42, 0.88]] },
+          { label: 'Sonido 04', notes: 'F3 + C4 + G4 + A4', duration: '1.7 s', events: [[0.00, 174.61, 0.88, 0.34, 1.12], [0.07, 261.63, 0.78, 0.40, 1.06], [0.14, 392.00, 0.72, 0.46, 1.02], [0.21, 440.00, 0.64, 0.50, 1.08]] }
+        ]
+      },
+      {
+        id: 'PT-18',
+        name: 'Silla 02',
+        type: 'silla',
+        diameter: 'Silla',
+        isMaqueta: false,
+        badge: 'Silla Giratoria',
+        register: 'Registro medio-grave corporal',
+        desc: 'Asiento giratorio interactivo con resonancia cálida de madera y caída larga.',
+        sounds: [
+          { label: 'Sonido 01', notes: 'A2 · F3 · C4 · G4', duration: '1.6 s', events: [[0.00, 110.00, 0.96, 0.30, 1.15], [0.16, 174.61, 0.84, 0.36, 1.04], [0.32, 261.63, 0.68, 0.42, 0.94], [0.48, 392.00, 0.48, 0.48, 0.88]] },
+          { label: 'Sonido 02', notes: 'G4 → F4 → C4 → A3 → G3', duration: '1.5 s', events: [[0.00, 392.00, 0.78, 0.48, 0.62], [0.11, 349.23, 0.66, 0.42, 0.66], [0.22, 261.63, 0.54, 0.36, 0.70], [0.33, 220.00, 0.42, 0.30, 0.78], [0.44, 196.00, 0.32, 0.26, 0.90]] },
+          { label: 'Sonido 03', notes: 'C3 · G3 · D4', duration: '1.5 s', events: [[0.00, 130.81, 0.94, 0.30, 1.00], [0.25, 196.00, 0.78, 0.38, 0.92], [0.48, 293.66, 0.60, 0.44, 0.88]] },
+          { label: 'Sonido 04', notes: 'A2 + F3 + C4 + D4', duration: '1.7 s', events: [[0.00, 110.00, 0.90, 0.30, 1.15], [0.07, 174.61, 0.80, 0.36, 1.08], [0.14, 261.63, 0.72, 0.42, 1.04], [0.21, 293.66, 0.64, 0.46, 1.08]] }
+        ]
+      },
+      {
+        id: 'PT-19',
+        name: 'Silla 03',
+        type: 'silla',
+        diameter: 'Silla',
+        isMaqueta: false,
+        badge: 'Silla Giratoria',
+        register: 'Registro medio-grave corporal',
+        desc: 'Asiento giratorio interactivo con armonías graves-medias de descanso.',
+        sounds: [
+          { label: 'Sonido 01', notes: 'G2 · D3 · A3 · F4', duration: '1.6 s', events: [[0.00, 98.00, 0.96, 0.28, 1.18], [0.16, 146.83, 0.84, 0.34, 1.06], [0.32, 220.00, 0.68, 0.40, 0.96], [0.48, 349.23, 0.48, 0.46, 0.90]] },
+          { label: 'Sonido 02', notes: 'A4 → G4 → D4 → C4 → G3', duration: '1.5 s', events: [[0.00, 440.00, 0.78, 0.50, 0.62], [0.11, 392.00, 0.66, 0.44, 0.66], [0.22, 293.66, 0.54, 0.38, 0.70], [0.33, 261.63, 0.42, 0.32, 0.78], [0.44, 196.00, 0.32, 0.26, 0.90]] },
+          { label: 'Sonido 03', notes: 'F2 · C3 · A3', duration: '1.6 s', events: [[0.00, 87.31, 0.96, 0.26, 1.12], [0.26, 130.81, 0.82, 0.32, 1.00], [0.50, 220.00, 0.62, 0.40, 0.92]] },
+          { label: 'Sonido 04', notes: 'G2 + D3 + A3 + C4', duration: '1.7 s', events: [[0.00, 98.00, 0.92, 0.28, 1.18], [0.07, 146.83, 0.82, 0.34, 1.10], [0.14, 220.00, 0.74, 0.40, 1.06], [0.21, 261.63, 0.64, 0.44, 1.10]] }
+        ]
+      }
+    ];
+
+    // =========================================================================
+    // 3. ESTADO DE LA APLICACIÓN Y DISPARO DE SONIDOS
+    // =========================================================================
+    let currentDeviceIndex = 0;
+    let activeFilter = 'all';
+    let currentRotation = 0;
+    let isDragging = false;
+    let lastPointerAngle = 0;
+    let lastTriggeredSector = -1;
+    let sequenceTimer = null;
+
+    function triggerGesture(deviceIdx, soundIdx) {
+      initAudioContext(false);
+      const device = DEVICES[deviceIdx];
+      if (!device) return;
+      const sound = device.sounds[soundIdx];
+      if (!sound) return;
+
+      const now = audioCtx.currentTime + 0.01;
+      sound.events.forEach(([offset, freq, vel, brightness, decay]) => {
+        scheduleOrganicNote(now + offset, freq, vel, brightness, decay);
+      });
+
+      highlightVisualFeedback(soundIdx);
+    }
+
+    function highlightVisualFeedback(soundIdx) {
+      // Iluminar cuadrante en el rotor
+      for (let i = 0; i < 4; i++) {
+        const quad = document.getElementById(`quad-${i}`);
+        const card = document.getElementById(`sound-card-${i}`);
+        if (quad) {
+          if (i === soundIdx) {
+            quad.setAttribute('fill', '#F3E5DF');
+            quad.setAttribute('stroke', '#B85D3B');
+            quad.setAttribute('stroke-width', '2.5');
+          } else {
+            quad.setAttribute('fill', i % 2 === 0 ? '#FFFDF9' : '#FAF7F0');
+            quad.setAttribute('stroke', '#DFD9CE');
+            quad.setAttribute('stroke-width', '1.5');
+          }
+        }
+        if (card) {
+          if (i === soundIdx) {
+            card.classList.add('border-terracotta', 'bg-terracottaSoft/45', 'shadow-sm');
+            card.classList.remove('border-borderSubtle', 'bg-paper');
+          } else {
+            card.classList.remove('border-terracotta', 'bg-terracottaSoft/45', 'shadow-sm');
+            card.classList.add('border-borderSubtle', 'bg-paper');
+          }
+        }
+      }
+
+      // Pulso en sensor superior
+      const sensor = document.getElementById('sensorIndicator');
+      if (sensor) {
+        sensor.classList.add('bg-terracotta', 'border-terracotta', 'scale-125');
+        setTimeout(() => {
+          sensor.classList.remove('bg-terracotta', 'border-terracotta', 'scale-125');
+        }, 240);
+      }
+
+      // Onda expansiva
+      const wave = document.getElementById('pulseWave');
+      if (wave) {
+        wave.classList.remove('animate-ring');
+        void wave.offsetWidth;
+        wave.classList.add('animate-ring');
+      }
+
+      // Restaurar color del cuadrante tras la caída
+      setTimeout(() => {
+        const quad = document.getElementById(`quad-${soundIdx}`);
+        if (quad) {
+          quad.setAttribute('fill', soundIdx % 2 === 0 ? '#FFFDF9' : '#FAF7F0');
+          quad.setAttribute('stroke', '#DFD9CE');
+          quad.setAttribute('stroke-width', '1.5');
+        }
+      }, 420);
+    }
+
+    // =========================================================================
+    // 4. RENDERIZADO DE LISTA, TARJETAS Y ESCALA DEL SIMULADOR
+    // =========================================================================
+    function renderDeviceList() {
+      const listEl = document.getElementById('deviceList');
+      const counterBadge = document.getElementById('counterBadge');
+      listEl.innerHTML = '';
+
+      const filtered = DEVICES.map((d, idx) => ({ ...d, originalIndex: idx })).filter(d => {
+        if (activeFilter === 'all') return true;
+        if (activeFilter === 'maqueta') return d.isMaqueta;
+        if (activeFilter === 'silla') return d.type === 'silla';
+        return d.diameter === activeFilter;
+      });
+
+      counterBadge.textContent = `${filtered.length} / 19`;
+
+      filtered.forEach(item => {
+        const isSelected = item.originalIndex === currentDeviceIndex;
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.onclick = () => selectDevice(item.originalIndex);
+
+        const baseClasses = 'w-full text-left px-3.5 py-2.5 rounded-xl border transition-all flex items-center justify-between gap-2';
+        const stateClasses = isSelected
+          ? 'bg-ink text-ivory border-ink shadow-sm'
+          : item.isMaqueta
+            ? 'bg-terracottaSoft/55 text-ink border-terracotta/35 hover:border-terracotta'
+            : 'bg-paper text-ink border-borderSubtle hover:border-ink/40';
+
+        btn.className = `${baseClasses} ${stateClasses}`;
+
+        const tagText = item.type === 'silla' ? 'Silla' : `Ø ${item.diameter} cm`;
+        const tagClasses = isSelected
+          ? 'bg-ivory/15 text-ivory border-ivory/20'
+          : item.isMaqueta
+            ? 'bg-terracotta text-ivory border-terracotta'
+            : 'bg-sand text-inkMuted border-borderSubtle';
+
+        btn.innerHTML = `
+          <div class="min-w-0">
+            <div class="flex items-center gap-2">
+              <span class="font-mono text-[11px] ${isSelected ? 'text-ivory/75' : 'text-inkMuted'}">${item.id}</span>
+              <span class="font-medium text-sm truncate">${item.name}</span>
+            </div>
+          </div>
+          <span class="shrink-0 font-mono text-[11px] px-2 py-0.5 rounded-md border ${tagClasses}">
+            ${tagText}
+          </span>
+        `;
+        listEl.appendChild(btn);
+      });
+    }
+
+    function selectDevice(index) {
+      stopSequence();
+      currentDeviceIndex = index;
+      const device = DEVICES[index];
+
+      // Actualizar cabecera del dispositivo
+      document.getElementById('activeCodeBadge').textContent = device.id;
+      document.getElementById('activeDeviceTitle').textContent = device.name;
+      document.getElementById('activeDeviceDesc').textContent = device.desc;
+      document.getElementById('activeRegisterBadge').textContent = device.register;
+
+      const catBadge = document.getElementById('activeCategoryBadge');
+      catBadge.textContent = device.badge;
+      if (device.isMaqueta) {
+        catBadge.className = 'text-xs font-medium px-2.5 py-0.5 rounded-full bg-terracottaSoft text-terracotta border border-terracotta/25';
+      } else if (device.type === 'silla') {
+        catBadge.className = 'text-xs font-medium px-2.5 py-0.5 rounded-full bg-sageSoft text-sage border border-sage/25';
+      } else {
+        catBadge.className = 'text-xs font-medium px-2.5 py-0.5 rounded-full bg-sand text-ink border border-borderSubtle';
+      }
+
+      // Escala visual proporcional del rotor según tamaño físico
+      const stage = document.getElementById('rotorStage');
+      const chairOutline = document.getElementById('chairOutline');
+      const centerLabel = document.getElementById('rotorCenterLabel');
+
+      if (device.type === 'silla') {
+        stage.className = 'relative flex items-center justify-center transition-all duration-300 w-[250px] h-[250px] sm:w-[280px] sm:h-[280px]';
+        chairOutline.classList.remove('hidden');
+        centerLabel.textContent = 'Silla';
+      } else {
+        chairOutline.classList.add('hidden');
+        centerLabel.textContent = `Ø ${device.diameter} cm`;
+        if (device.diameter === '30') {
+          stage.className = 'relative flex items-center justify-center transition-all duration-300 w-[235px] h-[235px] sm:w-[265px] sm:h-[265px]';
+        } else if (device.diameter === '50') {
+          stage.className = 'relative flex items-center justify-center transition-all duration-300 w-[265px] h-[265px] sm:w-[300px] sm:h-[300px]';
+        } else {
+          stage.className = 'relative flex items-center justify-center transition-all duration-300 w-[290px] h-[290px] sm:w-[335px] sm:h-[335px]';
+        }
+      }
+
+      // Renderizar las 4 tarjetas inferiores
+      const grid = document.getElementById('soundCardsGrid');
+      grid.innerHTML = '';
+      device.sounds.forEach((snd, sIdx) => {
+        const card = document.createElement('button');
+        card.type = 'button';
+        card.id = `sound-card-${sIdx}`;
+        card.onclick = () => triggerGesture(index, sIdx);
+        card.className = 'text-left p-3.5 rounded-xl bg-paper border border-borderSubtle hover:border-terracotta transition-all flex flex-col justify-between gap-2 group';
+        card.innerHTML = `
+          <div class="flex items-center justify-between w-full">
+            <span class="font-medium text-sm text-ink group-hover:text-terracotta transition-colors">${snd.label}</span>
+            <span class="w-7 h-7 rounded-full bg-ivory border border-borderSubtle flex items-center justify-center text-ink group-hover:bg-terracotta group-hover:text-ivory group-hover:border-terracotta transition-all">
+              <svg class="w-3.5 h-3.5 ml-0.5" viewBox="0 0 24 24" fill="currentColor">
+                <polygon points="5 3 19 12 5 21 5 3"></polygon>
+              </svg>
+            </span>
+          </div>
+          <div class="flex items-center justify-between w-full pt-1 border-t border-borderSubtle/70 font-mono text-[11px] text-inkMuted">
+            <span class="truncate">${snd.notes}</span>
+            <span class="shrink-0 ml-2">${snd.duration}</span>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+
+      renderDeviceList();
+    }
+
+    // =========================================================================
+    // 5. INTERACCIÓN TÁCTIL / MOUSE DEL ROTOR Y SECUENCIAS AUTOMÁTICAS
+    // =========================================================================
+    function handleQuadrantClick(soundIdx, event) {
+      if (event) event.stopPropagation();
+      triggerGesture(currentDeviceIndex, soundIdx);
+    }
+
+    const rotorWheel = document.getElementById('rotorWheel');
+
+    function getPointerAngle(clientX, clientY) {
+      const rect = rotorWheel.getBoundingClientRect();
+      const cx = rect.left + rect.width / 2;
+      const cy = rect.top + rect.height / 2;
+      return Math.atan2(clientY - cy, clientX - cx) * (180 / Math.PI);
+    }
+
+    function onPointerDown(e) {
+      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+      isDragging = true;
+      rotorWheel.classList.add('dragging');
+      lastPointerAngle = getPointerAngle(clientX, clientY);
+      initAudioContext(false);
+    }
+
+    function onPointerMove(e) {
+      if (!isDragging) return;
+      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+      const angle = getPointerAngle(clientX, clientY);
+
+      let delta = angle - lastPointerAngle;
+      if (delta > 180) delta -= 360;
+      if (delta < -180) delta += 360;
+
+      if (Math.abs(delta) > 1.5) {
+        currentRotation += delta;
+        rotorWheel.style.transform = `rotate(${currentRotation}deg)`;
+        lastPointerAngle = angle;
+
+        // Detectar paso por cada cuarto de vuelta (90°)
+        const normalized = ((currentRotation % 360) + 360) % 360;
+        const sector = Math.floor(normalized / 90);
+        if (sector !== lastTriggeredSector) {
+          lastTriggeredSector = sector;
+          // Mapear sector rotado al cuadrante que pasa bajo el sensor superior
+          const mappedSound = (4 - sector) % 4;
+          triggerGesture(currentDeviceIndex, mappedSound);
+        }
+      }
+    }
+
+    function onPointerUp() {
+      isDragging = false;
+      rotorWheel.classList.remove('dragging');
+    }
+
+    rotorWheel.addEventListener('mousedown', onPointerDown);
+    window.addEventListener('mousemove', onPointerMove);
+    window.addEventListener('mouseup', onPointerUp);
+
+    rotorWheel.addEventListener('touchstart', onPointerDown, { passive: true });
+    window.addEventListener('touchmove', onPointerMove, { passive: true });
+    window.addEventListener('touchend', onPointerUp);
+
+    function playSequence(direction) {
+      stopSequence();
+      initAudioContext(false);
+
+      const order = direction === 'cw' ? [0, 1, 2, 3] : [3, 2, 1, 0];
+      let step = 0;
+
+      document.getElementById('btnStopSeq').classList.remove('hidden');
+
+      function runStep() {
+        const sIdx = order[step % 4];
+        currentRotation += direction === 'cw' ? 90 : -90;
+        rotorWheel.style.transform = `rotate(${currentRotation}deg)`;
+        triggerGesture(currentDeviceIndex, sIdx);
+        step++;
+      }
+
+      runStep();
+      sequenceTimer = setInterval(runStep, 1150);
+    }
+
+    function stopSequence() {
+      if (sequenceTimer) {
+        clearInterval(sequenceTimer);
+        sequenceTimer = null;
+      }
+      document.getElementById('btnStopSeq').classList.add('hidden');
+    }
+
+    // =========================================================================
+    // 6. FILTROS E INICIALIZACIÓN
+    // =========================================================================
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        activeFilter = btn.getAttribute('data-filter');
+        document.querySelectorAll('.filter-btn').forEach(b => {
+          const f = b.getAttribute('data-filter');
+          if (f === activeFilter) {
+            b.className = 'filter-btn active px-3 py-1.5 rounded-full text-xs font-medium transition-all bg-ink text-ivory';
+          } else if (f === 'maqueta') {
+            b.className = 'filter-btn px-3 py-1.5 rounded-full text-xs font-medium transition-all bg-terracottaSoft text-terracotta border border-terracotta/30 hover:bg-terracotta hover:text-ivory';
+          } else {
+            b.className = 'filter-btn px-3 py-1.5 rounded-full text-xs font-medium transition-all bg-sand text-inkMuted hover:text-ink border border-borderSubtle';
+          }
+        });
+        renderDeviceList();
+      });
+    });
+
+    // Inicializar vista en Disco 01 (Maqueta Física)
+    selectDevice(0);
+  </script>
+</body>
+</html>
